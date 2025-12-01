@@ -1,0 +1,29 @@
+# Cursor IDE
+.cursor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Snakemake
+.snakemake/
+*.log
+
+# Data files (adjust as needed)
+*.bam
+*.fastq
+*.fq
+*.gz
+*.bz2
+
+# Results (adjust as needed)
+results/
+logs/
+
