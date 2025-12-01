@@ -1,0 +1,10 @@
+BUCKET: gs://pcst-ad
+
+CONDITIONS:
+  - Control
+  - Disease
+
+CELLTYPES:
+  - Neuron
+  - Astrocyte
+  - Microglia
