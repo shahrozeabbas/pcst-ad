@@ -2,8 +2,6 @@
 configfile: 'config.yaml'
 
 
-BUCKET = config['BUCKET']
-
 CELLTYPES = config['CELLTYPES']
 CONDITIONS = config['CONDITIONS']
 
@@ -11,33 +9,35 @@ CONDITIONS = config['CONDITIONS']
 rule all:
     input:
         expand(
-            f'{BUCKET}/output/{{celltype}}/network.tsv',
+            'output/{celltype}/network.tsv',
             celltype=CELLTYPES
         ),
         expand(
-            f'{BUCKET}/figures/{{celltype}}/{{condition}}_fava_histogram.png',
+            'figures/{celltype}/{condition}_fava_histogram.png',
             celltype=CELLTYPES,
             condition=CONDITIONS
         )
 
 rule counts:
     input:
-        gwas=f'{BUCKET}/input/magma_gene_symbol_results.tsv',
-        metadata=f'{BUCKET}/input/GSE174367_snRNA-seq_cell_meta.csv',
-        counts=f'{BUCKET}/input/GSE174367_snRNA-seq_filtered_feature_bc_matrix.h5'
+        gwas='input/magma_gene_symbol_results.tsv',
+        metadata='input/GSE174367_snRNA-seq_cell_meta.csv',
+        counts='input/GSE174367_snRNA-seq_filtered_feature_bc_matrix.h5'
     output:
-        anndata=f'{BUCKET}/output/{{celltype}}/{{condition}}_anndata.h5ad'
+        anndata='output/{celltype}/{condition}_anndata.h5ad'
     conda:
-        'envs/scanpy.yaml'
+        'containers/counts/env.yaml'
+    resources:
+        mem_mb=16000, cpus=2, disk_mb=8000
     script:
         'src/get_counts.py'
 
 rule fava:
     input:
-        anndata=f'{BUCKET}/output/{{celltype}}/{{condition}}_anndata.h5ad'
+        anndata='output/{celltype}/{condition}_anndata.h5ad'
     output:
-        pairs=f'{BUCKET}/output/{{celltype}}/{{condition}}_fava_pairs.tsv',
-        histogram=f'{BUCKET}/figures/{{celltype}}/{{condition}}_fava_histogram.png'
+        pairs='output/{celltype}/{condition}_fava_pairs.tsv',
+        histogram='figures/{celltype}/{condition}_fava_histogram.png'
     params:
         cc_cutoff=0.3
     conda:
@@ -45,12 +45,12 @@ rule fava:
     script:
         'src/run_fava.py'
 
-rule merge_fava:
+rule merge:
     input:
-        first_edges=f'{BUCKET}/output/{{celltype}}/Control_fava_pairs.tsv',
-        second_edges=f'{BUCKET}/output/{{celltype}}/Disease_fava_pairs.tsv'
+        first_edges='output/{celltype}/Control_fava_pairs.tsv',
+        second_edges='output/{celltype}/Disease_fava_pairs.tsv'
     output:
-        edges=f'{BUCKET}/output/{{celltype}}/merged_fava.tsv'
+        edges='output/{celltype}/merged_fava.tsv'
     conda:
         'envs/polars.yaml'
     script:
@@ -58,9 +58,9 @@ rule merge_fava:
 
 rule stringdb:
     input:
-        pairs=f'{BUCKET}/output/{{celltype}}/merged_fava.tsv'
+        pairs='output/{celltype}/merged_fava.tsv'
     output:
-        network=f'{BUCKET}/output/{{celltype}}/network.tsv'
+        network='output/{celltype}/network.tsv'
     conda:
         'envs/stringdb.yaml'
     script:

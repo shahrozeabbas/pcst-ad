@@ -8,3 +8,6 @@ CELLTYPES:
   - Neuron
   - Astrocyte
   - Microglia
+
+CONTAINERS:
+  counts: us-central1-docker.pkg.dev/starlit-cycle-479722-q0/pcst-ad-containers/counts:latest
