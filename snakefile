@@ -37,13 +37,9 @@ rule fava:
     params:
         cc_cutoff=0.0
     resources:
-        googlebatch_machine_type='n1-highmem-2',
-        googlebatch_cpu_milli=2000,
-        googlebatch_memory_mib=13000,
-        googlebatch_gpu_type='nvidia-tesla-t4',
-        googlebatch_gpu_count=1,
-        googlebatch_boot_disk_image='projects/deeplearning-platform-release/global/images/family/common-cu121',
-        googlebatch_install_gpu_drivers=True
+        nvidia_gpu=config['GPU_TYPE'],
+        googlebatch_machine_type=config['GPU_MACHINE_TYPE'],
+        googlebatch_boot_disk_image=config['GPU_BOOT_IMAGE']
     conda:
         'containers/fava/env.yaml'
     script:

@@ -8,8 +8,8 @@ adata = scanpy.read_h5ad(snakemake.input.anndata)
 
 
 pairs = fava.cook(
-    data=adata, log2_normalization=False, 
-    epochs=20, batch_size=32, random_seed=0,
+    data=adata, log2_normalization=True, 
+    epochs=10, batch_size=32, random_seed=0,
     CC_cutoff=snakemake.params.cc_cutoff, layer='counts'
 )
 
