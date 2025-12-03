@@ -1,6 +1,8 @@
 
-configfile: 'config.yaml'
+envvars:
+    'CONDA_PLUGINS_AUTO_ACCEPT_TOS'
 
+configfile: 'config.yaml'
 
 CELLTYPES = config['CELLTYPES']
 CONDITIONS = config['CONDITIONS']
@@ -9,15 +11,11 @@ CONDITIONS = config['CONDITIONS']
 rule all:
     input:
         expand(
-            'output/{celltype}/network.tsv',
-            celltype=CELLTYPES
-        ),
-        expand(
-            'figures/{celltype}/{condition}_fava_histogram.png',
+            'output/{celltype}/{condition}_fava_pairs.tsv', 
             celltype=CELLTYPES,
             condition=CONDITIONS
         )
-
+        
 rule counts:
     input:
         gwas='input/magma_gene_symbol_results.tsv',
@@ -27,8 +25,6 @@ rule counts:
         anndata='output/{celltype}/{condition}_anndata.h5ad'
     conda:
         'containers/counts/env.yaml'
-    resources:
-        mem_mb=16000, cpus=2, disk_mb=8000
     script:
         'src/get_counts.py'
 
@@ -39,9 +35,17 @@ rule fava:
         pairs='output/{celltype}/{condition}_fava_pairs.tsv',
         histogram='figures/{celltype}/{condition}_fava_histogram.png'
     params:
-        cc_cutoff=0.3
+        cc_cutoff=0.0
+    resources:
+        googlebatch_machine_type='n1-highmem-2',
+        googlebatch_cpu_milli=2000,
+        googlebatch_memory_mib=13000,
+        googlebatch_gpu_type='nvidia-tesla-t4',
+        googlebatch_gpu_count=1,
+        googlebatch_boot_disk_image='projects/deeplearning-platform-release/global/images/family/common-cu121',
+        googlebatch_install_gpu_drivers=True
     conda:
-        'envs/fava.yaml'
+        'containers/fava/env.yaml'
     script:
         'src/run_fava.py'
 
@@ -52,7 +56,7 @@ rule merge:
     output:
         edges='output/{celltype}/merged_fava.tsv'
     conda:
-        'envs/polars.yaml'
+        'containers/merge/polars.yaml'
     script:
         'src/merge_fava.py'
 
@@ -62,6 +66,6 @@ rule stringdb:
     output:
         network='output/{celltype}/network.tsv'
     conda:
-        'envs/stringdb.yaml'
+        'containers/stringdb/env.yaml'
     script:
         'src/make_network.py'

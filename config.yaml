@@ -2,12 +2,16 @@ BUCKET: gs://pcst-ad
 
 CONDITIONS:
   - Control
-  - Disease
+  - AD
 
 CELLTYPES:
-  - Neuron
-  - Astrocyte
-  - Microglia
+  - ODC
+  - EX
+  - INH
+  - ASC
+  - MG
+  - OPC
+  - PER.END
 
-CONTAINERS:
-  counts: us-central1-docker.pkg.dev/starlit-cycle-479722-q0/pcst-ad-containers/counts:latest
+
+

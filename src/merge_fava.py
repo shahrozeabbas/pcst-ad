@@ -1,16 +1,16 @@
-import polars as pl
+import polars
 
 
 def prep(df, a, b):
     return df.with_columns([
-        pl.min_horizontal(a, b).alias('u'),
-        pl.max_horizontal(a, b).alias('v')
+        polars.min_horizontal(a, b).alias('u'),
+        polars.max_horizontal(a, b).alias('v')
     ])
 
 
 # read TSV edge tables
-df1 = pl.read_csv(snakemake.input.first_edges, sep='\t')
-df2 = pl.read_csv(snakemake.input.second_edges, sep='\t')
+df1 = polars.read_csv(snakemake.input.first_edges, sep='\t')
+df2 = polars.read_csv(snakemake.input.second_edges, sep='\t')
 
 # canonicalize undirected endpoints
 df1_p = prep(df1, 'protein_1', 'protein_2')
@@ -25,7 +25,7 @@ edges = (
     )
     .select(['u', 'v', 'score1', 'score2'])
     .with_columns([
-        (pl.col('score1') - pl.col('score2')).abs().alias('merge_score')
+        (polars.col('score1') - polars.col('score2')).abs().alias('merge_score')
     ])
 )
 

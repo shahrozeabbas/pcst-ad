@@ -1,22 +1,29 @@
 executor: googlebatch
-googlebatch-project: starlit-cycle-479722-q0
+
 googlebatch-region: us-central1
-container-image: docker://mambaorg/micromamba:latest
+googlebatch-project: starlit-cycle-479722-q0
+
+googlebatch-machine-type: e2-highmem-2
+googlebatch-image-family: rocky-linux-8
+googlebatch-image-project: rocky-linux-cloud
+
+
+googlebatch-memory: 13000
+googlebatch-cpu-milli: 2000
+googlebatch-boot-disk-gb: 50
+
 software-deployment-method:
   - conda
-  - apptainer
+
 default-storage-provider: gcs
 default-storage-prefix: gs://pcst-ad
 storage-gcs-project: starlit-cycle-479722-q0
-default-resources:
-  - runtime=60
-  - mem_mb=4000
-  - disk_mb=10000
+
 preemptible-rules:
   - counts
   - fava
   - merge
   - stringdb
+
 jobs: 10
 latency-wait: 60
-

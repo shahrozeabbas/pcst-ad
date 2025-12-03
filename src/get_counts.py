@@ -2,10 +2,10 @@ import scanpy
 import pandas
 
 
-group = snakemake.wildcards.group
 celltype = snakemake.wildcards.celltype
-adata = scanpy.read_h5ad(snakemake.input.counts)
-metadata = pandas.read_csv(snakemake.input.metadata, sep='\t', index_col=0)
+condition = snakemake.wildcards.condition
+adata = scanpy.read_10x_h5(snakemake.input.counts)
+metadata = pandas.read_csv(snakemake.input.metadata)
 
 
 adata.var_names_make_unique()
@@ -19,7 +19,7 @@ gwas = pandas.read_csv(snakemake.input.gwas, sep='\t', index_col=0)
 adata = adata[:, adata.var_names.isin(gwas['GENE'])].copy()
 
 
-mask = (adata.obs['Cell.Type'] == celltype) & (adata.obs['Diagnosis'] == group)
+mask = (adata.obs['Cell.Type'] == celltype) & (adata.obs['Diagnosis'] == condition)
 
 adata = adata[mask].copy()
 
@@ -27,7 +27,7 @@ adata = adata[mask].copy()
 adata.layers['counts'] = adata.X.copy() # type: ignore
 
 scanpy.pp.highly_variable_genes(
-    adata, batch_key='SampleID', layer='counts', 
+    adata, batch_key='SampleID', layer='counts', span=1.0,
     flavor='seurat_v3', n_top_genes=10000, subset=True
 )
 
