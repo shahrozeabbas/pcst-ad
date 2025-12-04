@@ -25,5 +25,5 @@ preemptible-rules:
   - merge
   - stringdb
 
-jobs: 10
+jobs: 5
 latency-wait: 60

@@ -1,17 +1,17 @@
 BUCKET: gs://pcst-ad
 
 CONDITIONS:
-  # - Control
+  - Control
   - AD
 
 CELLTYPES:
   - ODC
-  # - EX
-  # - INH
-  # - ASC
-  # - MG
-  # - OPC
-  # - PER.END
+  - EX
+  - INH
+  - ASC
+  - MG
+  - OPC
+  - PER.END
 
 # GPU settings for fava rule
 GPU_TYPE: nvidia-tesla-t4

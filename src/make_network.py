@@ -1,33 +1,47 @@
-import numpy
+import polars
 import pandas
 import stringdb
 
 
-pairs = pandas.read_csv(snakemake.input.pairs, sep='\t')
+def canonicalize(df, a, b):
+    return df.with_columns([
+        polars.min_horizontal(a, b).alias('u'),
+        polars.max_horizontal(a, b).alias('v')
+    ])
 
-proteins = list(
-    set(
-        pairs['Protein_1'].tolist()
-        + pairs['Protein_2'].tolist()
+
+# read both condition edge tables
+df1 = polars.read_csv(snakemake.input.control_edges, separator='\t')
+df2 = polars.read_csv(snakemake.input.disease_edges, separator='\t')
+
+# canonicalize undirected edges
+df1 = canonicalize(df1, 'Protein_1', 'Protein_2')
+df2 = canonicalize(df2, 'Protein_1', 'Protein_2')
+
+# intersect fava edges across conditions, compute |control - disease|
+fava_edges = (
+    df1.join(
+        df2.select(['u', 'v', 'Score']).rename({'Score': 'disease_score'}),
+        on=['u', 'v'],
+        how='inner'
     )
+    .rename({'Score': 'control_score'})
+    .with_columns([
+        (polars.col('control_score') - polars.col('disease_score')).abs().alias('fava_score')
+    ])
 )
 
+# get unique proteins for stringdb query
+proteins = list(set(fava_edges['u'].to_list() + fava_edges['v'].to_list()))
 
+# query stringdb in batches
 string_ids_df = stringdb.get_string_ids(proteins, species=9606)
-
-string_ids = (
-    string_ids_df['stringId']
-    .dropna()
-    .drop_duplicates()
-    .tolist()
-)
-
+string_ids = string_ids_df['stringId'].dropna().drop_duplicates().tolist()
 
 edges = []
 batch_size = 1000
 
 for i in range(0, len(string_ids), batch_size):
-
     batch = string_ids[i:i + batch_size]
     print(f'Processing batch {i // batch_size + 1}: proteins {i}-{min(i + batch_size, len(string_ids))}')
 
@@ -36,35 +50,23 @@ for i in range(0, len(string_ids), batch_size):
         required_score=400, limit=None
     )
 
-    print('  Got', len(string_edges), 'interactions in this batch')
+    print(f'  Got {len(string_edges)} interactions in this batch')
     edges.append(string_edges)
 
-
 if edges:
+    string_df = polars.from_pandas(pandas.concat(edges, ignore_index=True))
+    string_df = canonicalize(string_df, 'preferredName_A', 'preferredName_B')
+    string_df = string_df.select(['u', 'v', 'score']).unique(subset=['u', 'v'])
 
-    string_df = pandas.concat(edges, ignore_index=True)
-    string_df = string_df[['preferredName_A', 'preferredName_B', 'score']].copy()
-    string_df.columns = ['protein_1', 'protein_2', 'confidence_score']
-
-    string_df = string_df.drop_duplicates(subset=['protein_1', 'protein_2'], keep='first')
-    string_df = string_df.sort_values('confidence_score', ascending=False).reset_index(drop=True)
-
-    df1 = pairs.rename(columns={'Protein_1':'a','Protein_2':'b','Score':'fava_score'})
-    df2 = string_df.rename(columns={'protein_1':'a','protein_2':'b','confidence_score':'string_score'})
-
-    df1[['u','v']] = numpy.sort(df1[['a','b']], axis=1)
-    df2[['u','v']] = numpy.sort(df2[['a','b']], axis=1)
-
-    network = df1.merge(
-        df2[['u','v','string_score']],
-        on=['u','v'],
+    # final intersection: fava edges that exist in stringdb
+    network = fava_edges.join(
+        string_df.select(['u', 'v', 'score']).rename({'score': 'string_score'}),
+        on=['u', 'v'],
         how='inner'
     )
 
-    network = network[['u','v','fava_score','string_score']]
-    network.to_csv(snakemake.output.network, sep='\t', index=False)
-
+    network.select(['u', 'v', 'fava_score', 'string_score']).write_csv(
+        snakemake.output.network, separator='\t'
+    )
 else:
     print('No interactions retrieved')
-
-

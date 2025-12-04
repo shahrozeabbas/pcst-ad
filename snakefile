@@ -11,9 +11,8 @@ CONDITIONS = config['CONDITIONS']
 rule all:
     input:
         expand(
-            'output/{celltype}/{condition}_fava_pairs.tsv', 
-            celltype=CELLTYPES,
-            condition=CONDITIONS
+            'output/{celltype}/network.tsv', 
+            celltype=CELLTYPES
         )
         
 rule counts:
@@ -45,23 +44,13 @@ rule fava:
     script:
         'src/run_fava.py'
 
-rule merge:
+rule network:
     input:
-        first_edges='output/{celltype}/Control_fava_pairs.tsv',
-        second_edges='output/{celltype}/Disease_fava_pairs.tsv'
-    output:
-        edges='output/{celltype}/merged_fava.tsv'
-    conda:
-        'containers/merge/polars.yaml'
-    script:
-        'src/merge_fava.py'
-
-rule stringdb:
-    input:
-        pairs='output/{celltype}/merged_fava.tsv'
+        control_edges='output/{celltype}/Control_fava_pairs.tsv',
+        disease_edges='output/{celltype}/AD_fava_pairs.tsv'
     output:
         network='output/{celltype}/network.tsv'
     conda:
-        'containers/stringdb/env.yaml'
+        'containers/network/env.yaml'
     script:
         'src/make_network.py'
