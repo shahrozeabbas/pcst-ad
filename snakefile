@@ -79,7 +79,7 @@ rule gsea:
     output:
         enrichment='output/{celltype}/gsea_enrichment.tsv'
     params:
-        gene_sets=['GO_Biological_Process_2023', 'KEGG_2021_Human']
+        gene_sets=config['GENE_SETS']
     conda:
         'containers/gsea/env.yaml'
     script:
