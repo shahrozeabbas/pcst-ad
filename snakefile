@@ -11,9 +11,10 @@ CONDITIONS = config['CONDITIONS']
 rule all:
     input:
         expand(
-            'output/{celltype}/scppin_object.pkl', 
+            'output/{celltype}/module_gsea_enrichment.tsv', 
             celltype=CELLTYPES
-        )
+        ),
+        'figures/module_jaccard_heatmap.png'
         
 rule counts:
     input:
@@ -51,6 +52,7 @@ rule network:
     output:
         network='output/{celltype}/network.tsv'
     resources:
+        googlebatch_memory=32000,
         googlebatch_machine_type='e2-highmem-4'
     conda:
         'containers/network/env.yaml'
@@ -84,3 +86,18 @@ rule gsea:
         'containers/gsea/env.yaml'
     script:
         'src/run_gsea.py'
+
+rule heatmap:
+    input:
+        models=expand('output/{celltype}/scppin_object.pkl', celltype=CELLTYPES)
+    output:
+        heatmap='figures/module_jaccard_heatmap.png'
+    params:
+        celltypes=CELLTYPES
+    resources:
+        googlebatch_memory=32000,
+        googlebatch_machine_type='e2-highmem-4'
+    conda:
+        'containers/heatmap/env.yaml'
+    script:
+        'src/make_heatmap.py'
