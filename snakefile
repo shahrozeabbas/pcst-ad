@@ -62,10 +62,25 @@ rule scppin:
         network='output/{celltype}/network.tsv',
         pvalues='input/magma_gene_symbol_results.tsv'
     output:
-        module='output/{celltype}/scppin_object.pkl'
+        model='output/{celltype}/scppin_object.pkl'
     params:
         method='fava'
+    resources:
+        googlebatch_memory=32000,
+        googlebatch_machine_type='e2-highmem-4'
     conda:
         'containers/scppin/env.yaml'
     script:
         'src/run_scppin.py'
+
+rule gsea:
+    input:
+        model='output/{celltype}/scppin_object.pkl'
+    output:
+        enrichment='output/{celltype}/gsea_enrichment.tsv'
+    params:
+        gene_sets=['GO_Biological_Process_2023', 'KEGG_2021_Human']
+    conda:
+        'containers/gsea/env.yaml'
+    script:
+        'src/run_gsea.py'
