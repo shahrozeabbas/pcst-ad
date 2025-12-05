@@ -9,14 +9,19 @@ network = pandas.read_csv(snakemake.input.network, sep='\t')
 
 if method == 'mean':
     network['weight'] = (network['fava_score'] + network['string_score']) / 2
+
 elif method == 'multiply':
     network['weight'] = (network['fava_score'] * network['string_score'])
+
 elif method == 'geometric_mean':
     network['weight'] = (network['fava_score'] * network['string_score']) ** 0.5
+
 elif method == 'fava':
     network['weight'] = network['fava_score']
+
 elif method == 'string':
     network['weight'] = network['string_score']
+
 else:
     raise ValueError(f'Invalid method: {method}')
 
@@ -41,3 +46,5 @@ with open(snakemake.output.model, 'wb') as f:
 
 print(f'Nodes: {model.module.vcount()}')
 print(f'Edges: {model.module.ecount()}')
+
+
