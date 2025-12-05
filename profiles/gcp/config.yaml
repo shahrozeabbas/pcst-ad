@@ -22,8 +22,7 @@ storage-gcs-project: starlit-cycle-479722-q0
 preemptible-rules:
   - counts
   - fava
-  - merge
-  - stringdb
+  - network
 
 jobs: 5
 latency-wait: 60

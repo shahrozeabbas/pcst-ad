@@ -11,7 +11,7 @@ CONDITIONS = config['CONDITIONS']
 rule all:
     input:
         expand(
-            'output/{celltype}/network.tsv', 
+            'output/{celltype}/scppin_object.pkl', 
             celltype=CELLTYPES
         )
         
@@ -50,7 +50,22 @@ rule network:
         disease_edges='output/{celltype}/AD_fava_pairs.tsv'
     output:
         network='output/{celltype}/network.tsv'
+    resources:
+        googlebatch_machine_type='e2-highmem-4'
     conda:
         'containers/network/env.yaml'
     script:
         'src/make_network.py'
+
+rule scppin:
+    input:
+        network='output/{celltype}/network.tsv',
+        pvalues='input/magma_gene_symbol_results.tsv'
+    output:
+        module='output/{celltype}/scppin_object.pkl'
+    params:
+        method='fava'
+    conda:
+        'containers/scppin/env.yaml'
+    script:
+        'src/run_scppin.py'
