@@ -20,8 +20,7 @@ GPU_BOOT_IMAGE: projects/rocky-linux-accelerator-cloud/global/images/family/rock
 
 # GSEA gene sets
 GENE_SETS:
-  - MSigDB_Hallmark_2020
-  - KEGG_2021_Human
-
+  - Reactome_2022
+  - DisGeNET
 
 

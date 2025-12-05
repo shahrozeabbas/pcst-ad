@@ -23,6 +23,9 @@ preemptible-rules:
   - counts
   - fava
   - network
+  - scppin
+  - gsea
+  - heatmap
 
 jobs: 5
 latency-wait: 60
