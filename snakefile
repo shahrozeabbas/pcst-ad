@@ -77,7 +77,7 @@ rule gsea:
     input:
         model='output/{celltype}/scppin_object.pkl'
     output:
-        enrichment='output/{celltype}/gsea_enrichment.tsv'
+        enrichment='output/{celltype}/module_gsea_enrichment.tsv'
     params:
         gene_sets=config['GENE_SETS']
     conda:
