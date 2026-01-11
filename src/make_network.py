@@ -18,7 +18,7 @@ df2 = polars.read_csv(snakemake.input.disease_edges, separator='\t')
 df1 = canonicalize(df1, 'Protein_1', 'Protein_2')
 df2 = canonicalize(df2, 'Protein_1', 'Protein_2')
 
-# intersect fava edges across conditions, compute |control - disease|
+# intersect fava edges across conditions, compute fisher z-transformed difference
 fava_edges = (
     df1.join(
         df2.select(['u', 'v', 'Score']).rename({'Score': 'disease_score'}),
@@ -27,8 +27,19 @@ fava_edges = (
     )
     .rename({'Score': 'control_score'})
     .with_columns([
-        (polars.col('control_score') - polars.col('disease_score')).abs().alias('fava_score')
+        # Fisher z-transform (clip to avoid infinity at ±1)
+        polars.col('control_score').clip(-0.999, 0.999).arctanh().alias('control_z'),
+        polars.col('disease_score').clip(-0.999, 0.999).arctanh().alias('disease_z')
     ])
+    .with_columns([
+        (polars.col('control_z') - polars.col('disease_z')).abs().alias('z_diff')
+    ])
+    .with_columns([
+        # Min-max normalize to 0-1
+        ((polars.col('z_diff') - polars.col('z_diff').min()) /
+         (polars.col('z_diff').max() - polars.col('z_diff').min())).alias('fava_score')
+    ])
+    .drop(['control_z', 'disease_z', 'z_diff'])
 )
 
 # get unique proteins for stringdb query
@@ -47,7 +58,7 @@ for i in range(0, len(string_ids), batch_size):
 
     string_edges = stringdb.get_interaction_partners(
         identifiers=batch, species=9606,
-        required_score=400, limit=None
+        required_score=700, limit=None
     )
 
     print(f'  Got {len(string_edges)} interactions in this batch')
