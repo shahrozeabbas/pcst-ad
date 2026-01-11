@@ -8,9 +8,9 @@ adata = scanpy.read_h5ad(snakemake.input.anndata)
 
 
 pairs = fava.cook(
-    data=adata, log2_normalization=True, 
-    epochs=10, batch_size=32, random_seed=0,
-    CC_cutoff=snakemake.params.cc_cutoff, layer='counts'
+    data=adata, epochs=50, 
+    batch_size=32, layer='counts', 
+    interaction_count=None, log2_normalization=True
 )
 
 pairs['Score'].plot(
