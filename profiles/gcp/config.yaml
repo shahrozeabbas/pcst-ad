@@ -27,7 +27,7 @@ preemptible-rules:
   - gsea
   - heatmap
 
-jobs: 5
+jobs: 4
 latency-wait: 60
 
 resources:
