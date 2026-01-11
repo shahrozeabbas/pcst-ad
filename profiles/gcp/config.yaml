@@ -29,3 +29,6 @@ preemptible-rules:
 
 jobs: 5
 latency-wait: 60
+
+resources:
+  gpu: 1

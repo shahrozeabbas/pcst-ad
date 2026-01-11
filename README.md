@@ -1,6 +1,12 @@
 # pcst-ad
 
-Snakemake pipeline for PCST (Prize-Collecting Steiner Tree) analysis of Alzheimer's disease single-cell RNA-seq data. Identifies protein-protein interaction networks using FAVA and STRING database.
+Snakemake pipeline for identifying Alzheimer's disease-relevant protein modules by integrating three data modalities:
+
+- **Edges**: Protein-protein interactions from STRING database
+- **Edge weights**: Differential co-expression scores from FAVA (Control vs AD)
+- **Node weights**: Gene-level p-values from MAGMA (AD GWAS)
+
+The Prize-Collecting Steiner Tree (PCST) algorithm finds connected subnetworks that balance including high-prize nodes (genetically associated genes) with traversing high-weight edges (differentially co-expressed protein interactions).
 
 ## Pipeline Overview
 
@@ -15,10 +21,10 @@ graph LR
 
 ### Workflow Steps
 
-- **counts**: Extract cell-type specific expression data filtered by MAGMA GWAS genes
-- **fava**: Compute gene-gene co-expression scores using FAVA (GPU-accelerated)
-- **network**: Compute differential correlation (Fisher z-transformation) between Control and AD conditions, filter by STRING protein-protein interactions
-- **scppin**: Prize-Collecting Steiner Tree module detection using MAGMA p-values as node weights
+- **counts**: Extract cell-type specific expression data filtered to MAGMA GWAS genes
+- **fava**: Compute gene-gene co-expression scores for Control and AD conditions (GPU-accelerated)
+- **network**: Compute differential correlation using Fisher z-transformation, filter edges to known STRING protein-protein interactions
+- **scppin**: PCST module detection—edges weighted by differential co-expression, nodes weighted by GWAS significance
 - **gsea**: Gene set enrichment analysis on detected modules
 - **heatmap**: Cross-cell-type module comparison using Jaccard similarity
 
