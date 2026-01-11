@@ -34,8 +34,6 @@ rule fava:
     output:
         pairs='output/{celltype}/{condition}_fava_pairs.tsv',
         histogram='figures/{celltype}/{condition}_fava_histogram.png'
-    params:
-        cc_cutoff=0.0
     resources:
         nvidia_gpu=config['GPU_TYPE'],
         googlebatch_machine_type=config['GPU_MACHINE_TYPE'],
