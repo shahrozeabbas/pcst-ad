@@ -14,7 +14,8 @@ rule all:
             'output/{celltype}/module_gsea_enrichment.tsv', 
             celltype=CELLTYPES
         ),
-        'figures/module_jaccard_heatmap.png'
+        'figures/module_jaccard_heatmap.png',
+        expand('figures/{celltype}/module_network.png', celltype=CELLTYPES)
         
 rule counts:
     input:
@@ -50,6 +51,8 @@ rule network:
         disease_edges='output/{celltype}/AD_fava_pairs.tsv'
     output:
         network='output/{celltype}/network.tsv'
+    params:
+        cutoff=config['STRING_CUTOFF']
     resources:
         googlebatch_memory=32000,
         googlebatch_machine_type='e2-highmem-4'
@@ -73,6 +76,20 @@ rule scppin:
         'containers/scppin/env.yaml'
     script:
         'src/run_scppin.py'
+
+rule plot:
+    input:
+        model='output/{celltype}/scppin_object.pkl',
+        pvalues='input/magma_gene_symbol_results.tsv'
+    output:
+        plot='figures/{celltype}/module_network.png'
+    resources:
+        googlebatch_memory=32000,
+        googlebatch_machine_type='e2-highmem-4'
+    conda:
+        'containers/plot/env.yaml'
+    script:
+        'src/make_plot.py'
 
 rule gsea:
     input:
