@@ -23,4 +23,5 @@ GENE_SETS:
   - Reactome_2022
   - DisGeNET
 
-
+# STRING cutoff
+STRING_CUTOFF: 700

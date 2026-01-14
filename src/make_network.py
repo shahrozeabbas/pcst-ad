@@ -58,7 +58,7 @@ for i in range(0, len(string_ids), batch_size):
 
     string_edges = stringdb.get_interaction_partners(
         identifiers=batch, species=9606,
-        required_score=700, limit=None
+        required_score=snakemake.params.cutoff, limit=None
     )
 
     print(f'  Got {len(string_edges)} interactions in this batch')
