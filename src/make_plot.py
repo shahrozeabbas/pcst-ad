@@ -1,15 +1,15 @@
 import pickle
-import pandas
 import math
-import io
+import random
 import tempfile
+import pandas
 import scppin
 import igraph as ig
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
-from PIL import Image, ImageDraw, ImageFont
-
+from PIL import Image
+from adjustText import adjust_text
 
 CELLTYPE_NAMES = {
     'ODC': 'Oligodendrocytes',
@@ -46,75 +46,89 @@ if max_neg_log == 0:
 norm_pvalues = [p / max_neg_log if max_neg_log > 0 else 0 for p in neg_log_pvalues]
 
 colors = [cm.Blues(0.3 + 0.7 * p) for p in norm_pvalues]
-# Convert RGBA (0-1) to hex strings for igraph
-colors = ['#{:02x}{:02x}{:02x}'.format(
+colors_hex = ['#{:02x}{:02x}{:02x}'.format(
     int(r * 255), int(grn * 255), int(b * 255)
 ) for r, grn, b, _ in colors]
 
-layout = g.layout('kamada_kawai')
-layout.scale(1.5)  # Spread nodes apart to reduce label overlap
-
-# Compute label angles for radial placement (labels point outward from center)
-layout_coords = layout.coords
-center_x = sum(c[0] for c in layout_coords) / len(layout_coords)
-center_y = sum(c[1] for c in layout_coords) / len(layout_coords)
-label_angles = [math.atan2(y - center_y, x - center_x) for x, y in layout_coords]
+random.seed(0)
+layout = g.layout('lgl')
+layout.scale(1.5)
+coords = layout.coords
 
 visual_style = {
     'layout': layout,
-    'vertex_size': 25,
-    'vertex_color': colors,
+    'vertex_size': 30,
+    'vertex_color': colors_hex,
     'vertex_frame_color': '#2C5282',
     'vertex_frame_width': 1,
-    'vertex_label': gene_names,
-    'vertex_label_size': 15,
-    'vertex_label_color': '#1A202C',
-    'vertex_label_dist': 1.5,
-    'vertex_label_angle': label_angles,
     'edge_color': '#A0AEC0',
     'edge_width': 0.8,
     'edge_curved': 0.1,
     'margin': 80
 }
 
-# Render network with Cairo to temp file
 with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
     tmp_path = tmp.name
+
 ig.plot(g, tmp_path, bbox=(1200, 700), **visual_style)
 network_img = Image.open(tmp_path)
 
-# Create colorbar with matplotlib
-fig, ax = plt.subplots(figsize=(10, 0.5))
+coords_x = [c[0] for c in coords]
+coords_y = [c[1] for c in coords]
+x_min, x_max = min(coords_x), max(coords_x)
+y_min, y_max = min(coords_y), max(coords_y)
+
+x_range = x_max - x_min
+y_range = y_max - y_min
+x_padding = x_range * 0.1
+y_padding = y_range * 0.1
+center_x = sum(coords_x) / len(coords_x)
+center_y = sum(coords_y) / len(coords_y)
+offset_scale = 0.02 * max(x_range, y_range)
+
+fig = plt.figure(figsize=(14, 9))
+gs = fig.add_gridspec(2, 1, height_ratios=[20, 1], hspace=0.3)
+ax = fig.add_subplot(gs[0])
+cbar_ax = fig.add_subplot(gs[1])
+
+ax.imshow(network_img, extent=[x_min - x_padding, x_max + x_padding,
+                                y_max + y_padding, y_min - y_padding],
+          aspect='auto', zorder=0)
+
+texts = []
+for (x, y), name in zip(coords, gene_names):
+    dx = x - center_x
+    dy = y - center_y
+    norm = math.hypot(dx, dy)
+    if norm > 0:
+        x += (dx / norm) * offset_scale
+        y += (dy / norm) * offset_scale
+    texts.append(
+        ax.text(x, y, name, fontsize=10, color='#1A202C', weight='bold', zorder=3)
+    )
+adjust_text(
+    texts,
+    ax=ax,
+    x=coords_x,
+    y=coords_y,
+    expand_text=(1.2, 1.35),
+    expand_points=(1.5, 1.5),
+    force_text=(0.18, 0.18),
+    force_points=(0.35, 0.35),
+    arrowprops=dict(arrowstyle='-', color='gray', lw=0.5),
+)
+
+ax.set_xlim(x_min - x_padding, x_max + x_padding)
+ax.set_ylim(y_min - y_padding, y_max + y_padding)
+ax.axis('off')
+ax.set_title(celltype_name, fontsize=24, weight='bold', pad=20, loc='left')
+
 cmap = cm.Blues
 norm = mcolors.Normalize(vmin=0, vmax=max_neg_log)
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
 sm.set_array([])
-cbar = fig.colorbar(sm, cax=ax, orientation='horizontal')
+cbar = fig.colorbar(sm, cax=cbar_ax, orientation='horizontal')
 cbar.set_label('-log10(p-value)', fontsize=10)
-plt.tight_layout()
 
-# Save colorbar to buffer
-cbar_buffer = io.BytesIO()
-plt.savefig(cbar_buffer, format='png', dpi=150, bbox_inches='tight', facecolor='white')
+plt.savefig(snakemake.output.plot, dpi=150, bbox_inches='tight', facecolor='white')
 plt.close()
-cbar_buffer.seek(0)
-cbar_img = Image.open(cbar_buffer)
-
-# Resize colorbar to match network width
-cbar_img = cbar_img.resize((network_img.width, int(cbar_img.height * network_img.width / cbar_img.width)))
-
-# Composite images
-final_height = network_img.height + cbar_img.height + 20
-final_img = Image.new('RGB', (network_img.width, final_height), 'white')
-final_img.paste(network_img, (0, 0))
-final_img.paste(cbar_img, (0, network_img.height + 20))
-
-# Add cell type name in top left
-draw = ImageDraw.Draw(final_img)
-try:
-    font = ImageFont.truetype('DejaVuSans-Bold.ttf', 24)
-except OSError:
-    font = ImageFont.load_default()
-draw.text((20, 15), celltype_name, fill='black', font=font)
-
-final_img.save(snakemake.output.plot, dpi=(150, 150))
