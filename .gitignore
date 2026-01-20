@@ -26,6 +26,3 @@ ENV/
 # Results (adjust as needed)
 results/
 logs/
-
-network_summary.tsv
-summarize_networks.py
