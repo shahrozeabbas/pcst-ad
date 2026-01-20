@@ -26,6 +26,7 @@ preemptible-rules:
   - scppin
   - gsea
   - heatmap
+  - plot
 
 jobs: 4
 latency-wait: 60
