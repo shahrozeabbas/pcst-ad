@@ -6,6 +6,9 @@ authors:
   - family-names: Abbas
     given-names: Shahroze
 repository-code: 'https://github.com/shahrozeabbas/pcst-ad'
+doi: 10.5281/zenodo.18319511
+version: 1.0.0
+date-released: '2026-01-11'
 license: GPL-3.0
 keywords:
   - alzheimers-disease
