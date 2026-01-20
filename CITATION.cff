@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: 'If you use this software, please cite it as below.'
+type: software
+title: 'pcst-ad: Prize-Collecting Steiner Tree Analysis for Alzheimer''s Disease'
+authors:
+  - family-names: Abbas
+    given-names: Shahroze
+repository-code: 'https://github.com/shahrozeabbas/pcst-ad'
+license: GPL-3.0
+keywords:
+  - alzheimers-disease
+  - single-cell-rna-seq
+  - gwas
+  - protein-protein-interaction
+  - snakemake
+  - bioinformatics
