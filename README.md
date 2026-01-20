@@ -106,8 +106,8 @@ snakemake --profile profiles/gcp
 - MAGMA gene-level results derived from this GWAS
 
 **Single-cell RNA-seq Data:**
-- Morabito et al. (2023). "hdWGCNA identifies co-expression networks in high-dimensional transcriptomics data." *Cell Reports Methods* (GEO: GSE174367)
-- Link: https://www.cell.com/cell-reports-methods/fulltext/S2667-2375(23)00127-3
+- Morabito et al. (2021). "Single-nucleus chromatin accessibility and transcriptomic characterization of Alzheimer's disease." *Nature Genetics*, 53, 1143-1155. (GEO: GSE174367)
+- Link: https://www.nature.com/articles/s41588-021-00894-z
 
 **STRING Database:**
 - Protein-protein interaction network (v11.5)
