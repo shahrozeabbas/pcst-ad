@@ -86,6 +86,8 @@ STRING_CUTOFF: 500
 - `{celltype}/module_network.png` - Network visualization of detected module with GWAS p-value coloring
 - `module_jaccard_heatmap.png` - Cross-cell-type module similarity heatmap
 
+![Module Jaccard Heatmap](figures/module_jaccard_heatmap.png)
+
 ## Usage
 
 ### Local execution
