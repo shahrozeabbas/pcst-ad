@@ -28,6 +28,7 @@ graph LR
 - **scppin**: PCST module detection—edges weighted by differential co-expression, nodes weighted by GWAS significance
 - **gsea**: Gene set enrichment analysis on detected modules
 - **heatmap**: Cross-cell-type module comparison using Jaccard similarity
+- **plot**: Visualize detected modules as network graphs with nodes colored by GWAS p-value significance
 
 ## Input Data
 
@@ -82,6 +83,7 @@ STRING_CUTOFF: 500
 
 ### Figures (`figures/`)
 - `{celltype}/{condition}_fava_histogram.png` - Distribution of FAVA scores
+- `{celltype}/module_network.png` - Network visualization of detected module with GWAS p-value coloring
 - `module_jaccard_heatmap.png` - Cross-cell-type module similarity heatmap
 
 ## Usage
@@ -104,7 +106,7 @@ snakemake --profile profiles/gcp
 - MAGMA gene-level results derived from this GWAS
 
 **Single-cell RNA-seq Data:**
-- Cell Reports Methods paper (GEO: GSE174367)
+- Morabito et al. (2023). "hdWGCNA identifies co-expression networks in high-dimensional transcriptomics data." *Cell Reports Methods* (GEO: GSE174367)
 - Link: https://www.cell.com/cell-reports-methods/fulltext/S2667-2375(23)00127-3
 
 **STRING Database:**
