@@ -1,5 +1,7 @@
 # pcst-ad
 
+[![DOI](https://zenodo.org/badge/1107970103.svg)](https://doi.org/10.5281/zenodo.18319511)
+
 Snakemake pipeline for identifying Alzheimer's disease-relevant protein modules by integrating three data modalities:
 
 - **Edges**: Protein-protein interactions from STRING database
