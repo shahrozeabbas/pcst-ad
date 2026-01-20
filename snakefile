@@ -91,17 +91,17 @@ rule plot:
     script:
         'src/make_plot.py'
 
-# rule gsea:
-#     input:
-#         model='output/{celltype}/scppin_object.pkl'
-#     output:
-#         enrichment='output/{celltype}/module_gsea_enrichment.tsv'
-#     params:
-#         gene_sets=config['GENE_SETS']
-#     conda:
-#         'containers/gsea/env.yaml'
-#     script:
-#         'src/run_gsea.py'
+rule gsea:
+    input:
+        model='output/{celltype}/scppin_object.pkl'
+    output:
+        enrichment='output/{celltype}/module_gsea_enrichment.tsv'
+    params:
+        gene_sets=config['GENE_SETS']
+    conda:
+        'containers/gsea/env.yaml'
+    script:
+        'src/run_gsea.py'
 
 rule heatmap:
     input:

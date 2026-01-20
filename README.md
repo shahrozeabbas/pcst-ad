@@ -17,6 +17,7 @@ graph LR
     C --> D[scppin]
     D --> E[gsea]
     D --> F[heatmap]
+    D --> G[plot]
 ```
 
 ### Workflow Steps
@@ -65,6 +66,9 @@ GPU_BOOT_IMAGE: projects/rocky-linux-accelerator-cloud/global/images/family/rock
 GENE_SETS:
   - Reactome_2022
   - DisGeNET
+
+# STRING cutoff
+STRING_CUTOFF: 500
 ```
 
 ## Output Files
@@ -91,3 +95,18 @@ snakemake --use-conda
 ```bash
 snakemake --profile profiles/gcp
 ```
+
+## Data Sources
+
+**GWAS Data:**
+- Bellenguez et al. (2022). "New insights into the genetic etiology of Alzheimer's disease and related dementias." *Nature Genetics*, 54, 412-436.
+- Link: https://www.nature.com/articles/s41588-022-01024-z
+- MAGMA gene-level results derived from this GWAS
+
+**Single-cell RNA-seq Data:**
+- Cell Reports Methods paper (GEO: GSE174367)
+- Link: https://www.cell.com/cell-reports-methods/fulltext/S2667-2375(23)00127-3
+
+**STRING Database:**
+- Protein-protein interaction network (v11.5)
+- Link: https://string-db.org
