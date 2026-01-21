@@ -8,7 +8,7 @@ Snakemake pipeline for identifying Alzheimer's disease-relevant protein modules 
 - **Edge weights**: Differential co-expression scores from FAVA (Control vs AD)
 - **Node weights**: Gene-level p-values from MAGMA (AD GWAS)
 
-The Prize-Collecting Steiner Tree (PCST) algorithm finds connected subnetworks that balance including high-prize nodes (genetically associated genes) with traversing high-weight edges (differentially co-expressed protein interactions).
+The Prize-Collecting Steiner Tree (PCST) algorithm builds connected gene networks by balancing strong genetic signals against the cost of traversing weaker disease-specific co-expression links.
 
 ## Pipeline Overview
 
